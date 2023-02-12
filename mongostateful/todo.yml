@@ -1,0 +1,83 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: nsmongo
+  labels:
+    name: nsmongo
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongopv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: mongopv
+  local:
+    path: /data/db
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: type
+              operator: In
+              values:
+                - persistente
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongostate
+  namespace: nsmongo
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  serviceName: mongodbservice
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        selector: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongopvc
+  volumeClaimTemplates:
+    - metadata:
+        name: mongopvc
+        namespace: nsmongo
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: mongopv
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc
+  namespace: nsmongo
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+      port: 27017
+      targetPort: 27017

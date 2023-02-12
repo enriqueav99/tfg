@@ -1,0 +1,84 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: nsmongo
+
+---
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: mongopv
+  namespace: nsmongo
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /data/db
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - mongopv
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  namespace: nsmongo
+  labels:
+    app: mongodb
+spec:
+  clusterIP: None
+  selector:
+    app: mongodb
+  ports:
+    - port: 27017
+      targetPort: 27017
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongodb
+  namespace: nsmongo
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  serviceName: monogodbservice
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb
+        selector: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - mountPath: /data/db
+              name: pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: pvc
+      spec:
+       accessModes:
+          - ReadWriteOnce
+       resources:
+          requests:
+           storage: 1Gi
+       storageClassName: pvmongo
