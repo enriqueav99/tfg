@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: ir a la rama
-        uses: actions/checkout@nuevo
+        uses: actions/checkout@master/saludoja
       - name: build y push docker
         uses: docker/build-push-action@v1
         with:
