@@ -27,7 +27,7 @@ resource "kubernetes_deployment" "saludo" {
       }
       spec {
         container {
-          image = "enriqueav99/hellopy:latest"
+          image = "enriqueav99/saludoja:latest"
           name = "saludo"
         }
       }
@@ -49,8 +49,8 @@ resource "kubernetes_service" "saludo" {
     }
 
     port {
-      target_port = 8000
-      port        = 8000
+      target_port = 8080
+      port        = 8080
       protocol    = "TCP"
     }
 
