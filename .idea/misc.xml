@@ -3,13 +3,6 @@
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="Quarkus" url="file://$PROJECT_DIR$/saludoja" />
   </component>
-  <component name="MavenProjectsManager">
-    <option name="originalFiles">
-      <list>
-        <option value="$PROJECT_DIR$/saludoja/pom.xml" />
-      </list>
-    </option>
-  </component>
   <component name="ProjectRootManager">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
