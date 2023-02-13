@@ -10,6 +10,7 @@ spec:
   serviceName: mongodbservice
   replicas: 1
   template:
+
     metadata:
       labels:
         app: mongodb
@@ -23,6 +24,17 @@ spec:
           volumeMounts:
             - mountPath: /data/db
               name: mongopvc
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: In
+                    values:
+                      - persistente
+
+
   volumeClaimTemplates:
     - metadata:
         name: mongopvc
