@@ -1,0 +1,44 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: nspy
+  labels:
+    name: nspy
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploymentpy
+  namespace: nspy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hellopy
+  template:
+    metadata:
+      labels:
+        app: hellopy
+    spec:
+      containers:
+      - name: holla-py-app
+        image: enriqueav99/pruebaci:latest
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: servicepy
+  namespace: nspy
+spec:
+  selector:
+    app: hellopy
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
