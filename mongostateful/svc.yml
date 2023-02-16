@@ -4,6 +4,7 @@ metadata:
   name: svc
   namespace: nsmongo
 spec:
+  type: LoadBalancer
   selector:
     app: mongodb
   ports:

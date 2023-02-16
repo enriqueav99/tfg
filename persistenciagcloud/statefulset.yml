@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongostate
+  namespace: nsmongo
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  serviceName: mongodbservice
+  replicas: 1
+  template:
+
+    metadata:
+      labels:
+        app: mongodb
+        selector: mongodb
+    spec:
+      containers:
+        - name: mongodb
+          image: mongo
+          ports:
+            - containerPort: 27017
+          #env:
+           # - name: MONGO_INITDB_ROOT_USERNAME
+            #  value: system
+            #- name: MONGO_INITDB_ROOT_PASSWORD
+             # value: manager
+          volumeMounts:
+            - mountPath: /data/db
+              name: mongopvc
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: type
+                    operator: In
+                    values:
+                      - persistente
+
+
+  volumeClaimTemplates:
+    - metadata:
+        name: mongopvc
+        namespace: nsmongo
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+        storageClassName: ""
+        volumeName: mongopv
