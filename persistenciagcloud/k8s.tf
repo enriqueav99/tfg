@@ -1,14 +1,9 @@
-resource "kubernetes_namespace" "mongodb" {
-  metadata {
-    name = "nsmongo"
-  }
-}
 resource "kubernetes_persistent_volume_v1" "mongodb" {
   metadata {
     name = "mongopv"
   }
   spec {
-    access_modes = ["ReadWriteOnce"]
+    access_modes = ["ReadWriteMany"]
     capacity     = {
       storage="10Gi"
     }
@@ -22,7 +17,15 @@ resource "kubernetes_persistent_volume_v1" "mongodb" {
   }
 }
 
+resource "kubernetes_namespace" "mongodb" {
+  depends_on = [kubernetes_persistent_volume_v1.mongodb]
+  metadata {
+    name = "nsmongo"
+  }
+}
+
 resource "kubernetes_service" "mongodb" {
+  depends_on = [kubernetes_namespace.mongodb]
   metadata {
     name      = "tfservice"
     namespace = "nsmongo"
@@ -45,7 +48,7 @@ resource "kubernetes_service" "mongodb" {
 }
 
 resource "kubernetes_stateful_set" "mongodb" {
-
+  depends_on = [kubernetes_namespace.mongodb]
   metadata {
     name = "mongostate"
     namespace = "nsmongo"
@@ -70,11 +73,20 @@ resource "kubernetes_stateful_set" "mongodb" {
           port {
             container_port = 27017
           }
+          #env {
+           # name = "MONGO_INITDB_ROOT_USERNAME"
+            #value = "system"
+          #}
+          #env {
+            #name = "MONGO_INITDB_ROOT_PASSWORD"
+            #value = "manager"
+          #}
           volume_mount {
             mount_path = "/data/db"
             name       = "mongopvc"
           }
         }
+
         affinity {
           node_affinity {
             required_during_scheduling_ignored_during_execution {
@@ -96,7 +108,7 @@ resource "kubernetes_stateful_set" "mongodb" {
         namespace = "nsmongo"
       }
       spec {
-        access_modes = ["ReadWriteOnce"]
+        access_modes = ["ReadWriteMany"]
         resources {
           requests = {
             storage = "10Gi"

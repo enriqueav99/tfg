@@ -6,15 +6,10 @@ terraform {
     }
   }
 }
-resource "google_compute_disk" "mongodb" {
-  name = "disk-mongo"
-  source_disk="disk-mongo"
-  zone = "europe-north1-a"
-  size = 10
-}
+
 
 provider "google" {
-  project = "tfgsubernetes"
+  project = "tfg-kubernetes-378122"
   region = "europe-north1"
   zone = "europe-north1-a"
 }
